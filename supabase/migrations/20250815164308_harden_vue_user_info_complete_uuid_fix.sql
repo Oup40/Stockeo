@@ -20,8 +20,8 @@ from public.utilisateurs u
 left join public.utilisateurs_parcs up on up.utilisateur_id = u.id
 group by u.id, u.prenom, u.nom, role_effectif, email;
 
--- Droits: pas d'accès anon, uniquement authenticated (+ service_role si besoin)
-revoke all on view public.vue_user_info_complete from public;
-revoke all on view public.vue_user_info_complete from anon;
-grant select on view public.vue_user_info_complete to authenticated;
-grant select on view public.vue_user_info_complete to service_role;
+-- Droits: pas d'accès anon, uniquement authenticated (+ service_role si besoin)-- Droits: pas d'accès PUBLIC/anon, seulement authenticated (+ service_role si besoin)
+REVOKE ALL PRIVILEGES ON TABLE public.vue_user_info_complete FROM PUBLIC;
+REVOKE ALL PRIVILEGES ON TABLE public.vue_user_info_complete FROM anon;
+GRANT SELECT ON TABLE public.vue_user_info_complete TO authenticated;
+GRANT SELECT ON TABLE public.vue_user_info_complete TO service_role;
