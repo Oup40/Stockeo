@@ -1,44 +1,39 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
 type Parc = { id: string; nom: string }
+const LS_KEY = 'stockeo.selectedParcId'
 
-export default function ParcSelector({
-  value,
-  onChange,
-}: {
-  value: string | null
-  onChange: (id: string | null) => void
-}) {
+export default function ParcSelector({ onChange }: { onChange: (id: string | null) => void }) {
   const [parcs, setParcs] = useState<Parc[]>([])
-  const [loading, setLoading] = useState(true)
+  const [parcId, setParcId] = useState<string | null>(
+    typeof window !== 'undefined' ? localStorage.getItem(LS_KEY) : null
+  )
 
   useEffect(() => {
-    const run = async () => {
-      setLoading(true)
-      const { data, error } = await supabase
-        .from('vue_parcs_accessibles')
-        .select('id,nom')
-        .order('nom', { ascending: true })
-      if (error) {
-        console.error('vue_parcs_accessibles:', error)
-        setParcs([])
-      } else {
-        setParcs(data as Parc[])
-        if (!value && data && data.length) onChange((data[0] as Parc).id)
-      }
-      setLoading(false)
+    const load = async () => {
+      const { data } = await supabase.from('vue_parcs_accessibles').select('id, nom').order('nom')
+      setParcs((data ?? []) as Parc[])
     }
-    run()
+    load()
   }, [])
 
-  if (loading) return <span>Chargement…</span>
-  if (parcs.length === 0) return <span>Aucun parc accessible</span>
+  useEffect(() => {
+    if (parcId) localStorage.setItem(LS_KEY, parcId)
+    else localStorage.removeItem(LS_KEY)
+    onChange(parcId)
+  }, [parcId, onChange])
+
+  const options = useMemo(() => [{ id: '', nom: '— Sélectionner un parc —' }, ...parcs], [parcs])
 
   return (
-    <select className="border rounded p-2" value={value ?? ''} onChange={(e) => onChange(e.target.value)}>
-      {parcs.map((p) => (
-        <option key={p.id} value={p.id}>
+    <select
+      className="rounded border p-2"
+      value={parcId ?? ''}
+      onChange={(e) => setParcId(e.target.value || null)}
+    >
+      {options.map((p) => (
+        <option key={p.id || 'none'} value={p.id}>
           {p.nom}
         </option>
       ))}

@@ -1,14 +1,18 @@
 import { StrictMode, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import type { Page } from './lib/routes'
-import Dashboard from './pages/Dashboard'
-import Login from './pages/Login'
-import Profile from './pages/Profile'
-import Signup from './pages/Signup'
+
+// Import clair pour éviter toute confusion avec d'autres composants nommés "Dashboard"
+import DashboardPage, { type Page } from '@/pages/Dashboard'
+import Login from '@/pages/Login'
+import Profile from '@/pages/Profile'
+import Signup from '@/pages/Signup'
+
+// Le routeur maison peut afficher 'login' | 'signup' en plus des pages internes du Dashboard
+type AppPage = 'login' | 'signup' | Page
 
 function App() {
-  const [currentPage, setCurrentPage] = useState<Page>('login')
+  const [currentPage, setCurrentPage] = useState<AppPage>('login')
 
   const renderPage = () => {
     switch (currentPage) {
@@ -16,11 +20,16 @@ function App() {
         return <Login setCurrentPage={setCurrentPage} />
       case 'signup':
         return <Signup setCurrentPage={setCurrentPage} />
-      case 'profile':
-        return <Profile />
+      case 'profil':
+        return <Profile setCurrentPage={setCurrentPage} />
       default:
-        // Toutes les variantes "dashboard/*" passent ici
-        return <Dashboard currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        // Toutes les variantes 'dashboard/*' passent au composant DashboardPage
+        return (
+          <DashboardPage
+            currentPage={currentPage as Page}
+            setCurrentPage={setCurrentPage}
+          />
+        )
     }
   }
 

@@ -1,13 +1,20 @@
 import react from '@vitejs/plugin-react-swc'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
+
+// __dirname en ESM
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  server: {
-    port: 5173,
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
+    },
   },
-  preview: {
-    port: 4173,
-  }
+  server: { port: 5173 },
+  preview: { port: 4173 },
 })

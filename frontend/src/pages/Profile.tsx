@@ -1,15 +1,12 @@
-import { Link, useNavigate } from 'react-router-dom'
 import { useCurrentUser } from '../hooks/useCurrentUser'
 import { supabase } from '../lib/supabaseClient'
 
-export default function Profile() {
-  const navigate = useNavigate()
+export default function Profile({ setCurrentPage }: { setCurrentPage: (p: any) => void }) {
   const { user, loading } = useCurrentUser()
 
   const logout = async () => {
     await supabase.auth.signOut()
-    // ✅ navigation SPA (remplace window.location.href)
-    navigate('/login', { replace: true })
+    setCurrentPage('login')
   }
 
   if (loading) return <div className="p-4 text-sm">Chargement…</div>
@@ -19,9 +16,9 @@ export default function Profile() {
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="rounded-lg bg-white p-6 shadow">
           <p className="mb-4 text-sm">Vous n’êtes pas connecté.</p>
-          <Link to="/login" className="text-blue-600 hover:underline">
-            Se connecter
-          </Link>
+          <button className="text-blue-600 underline" onClick={() => setCurrentPage('login')}>
+            Aller à la page de connexion
+          </button>
         </div>
       </div>
     )
@@ -29,31 +26,18 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="order-b bg-white shadow-sm">
-        <div className="mx-auto flex max-w-5xl items-center justify-between p-4">
-          <h1 className="text-lg font-semibold">Mon profil</h1>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="rounded border border-gray-300 px-3 py-1 text-sm hover:bg-gray-50"
-            >
-              Dashboard
-            </button>
-            <button
-              onClick={logout}
-              className="rounded border border-transparent bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700"
-            >
-              Se déconnecter
-            </button>
-          </div>
+      <header className="border-b bg-white">
+        <div className="mx-auto flex max-w-3xl items-center justify-between p-4">
+          <h1 className="text-lg font-semibold">Profil</h1>
+          <button onClick={logout} className="rounded bg-black px-3 py-1.5 text-white">
+            Déconnexion
+          </button>
         </div>
       </header>
 
-      <main className="mx-auto max-w-2xl px-4 py-8">
-        <div className="rounded-lg bg-white shadow">
-          <div className="border-b border-gray-200 px-6 py-4">
-            <h2 className="text-base font-medium text-gray-900">Informations</h2>
-          </div>
+      <main className="mx-auto max-w-3xl p-4">
+        <div className="overflow-hidden rounded-lg border bg-white">
+          <div className="border-b bg-gray-50 px-6 py-4 font-medium">Informations</div>
           <div className="space-y-4 px-6 py-4">
             <div>
               <div className="text-xs uppercase text-gray-500">Email</div>
